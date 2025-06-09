@@ -5,6 +5,7 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
+const expressLayouts = require('express-ejs-layouts');
 const PORT = process.env.PORT || 3000;
 
 // Importowanie kontrolerów
@@ -14,6 +15,8 @@ const userController = require('./controllers/userController');
 // Konfiguracja middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(expressLayouts);
+app.set('layout', 'layout');
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Konfiguracja sesji
