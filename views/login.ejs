@@ -1,0 +1,35 @@
+
+
+<div class="auth-container">
+    <h1>Logowanie</h1>
+
+    <% if (error) { %>
+        <div class="alert alert-error"><%= error %></div>
+    <% } %>
+
+    <form action="/login" method="POST" class="form">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Hasło:</label>
+            <input type="password" id="password" name="password" required class="form-control">
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Zaloguj</button>
+        </div>
+    </form>
+
+    <p class="auth-link">
+        Nie masz konta? <a href="/register">Zarejestruj się</a>
+    </p>
+    
+    <div class="demo-info">
+        <p><strong>Konto demo:</strong></p>
+        <p>Email: jan@example.com</p>
+        <p>Hasło: haslo123</p>
+    </div>
+</div>

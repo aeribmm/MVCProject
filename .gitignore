@@ -1,0 +1,23 @@
+# Zależności
+node_modules/
+
+# Zmienne środowiskowe
+.env
+
+# Logi
+*.log
+npm-debug.log*
+
+# System operacyjny
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Pliki tymczasowe
+*.tmp
+*.temp

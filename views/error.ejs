@@ -1,0 +1,7 @@
+<% layout('layout') -%>
+
+<div class="error-page">
+    <h1>Błąd <%= locals.error && error.status || 500 %></h1>
+    <p><%= message %></p>
+    <a href="/" class="btn btn-primary">Wróć do strony głównej</a>
+</div>

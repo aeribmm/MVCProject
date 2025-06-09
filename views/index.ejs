@@ -1,0 +1,39 @@
+<% layout('layout') -%>
+
+<h1>Moje Projekty</h1>
+
+<div class="filter-section">
+    <form method="GET" action="/projects" class="filter-form">
+        <label for="status">Filtruj po statusie:</label>
+        <select name="status" id="status" onchange="this.form.submit()">
+            <option value="all" <%= statusFilter === 'all' ? 'selected' : '' %>>Wszystkie</option>
+            <option value="Planowany" <%= statusFilter === 'Planowany' ? 'selected' : '' %>>Planowane</option>
+            <option value="W trakcie" <%= statusFilter === 'W trakcie' ? 'selected' : '' %>>W trakcie</option>
+            <option value="Zakończony" <%= statusFilter === 'Zakończony' ? 'selected' : '' %>>Zakończone</option>
+            <option value="Wstrzymany" <%= statusFilter === 'Wstrzymany' ? 'selected' : '' %>>Wstrzymane</option>
+        </select>
+    </form>
+</div>
+
+<div class="projects-grid">
+    <% if (projects.length === 0) { %>
+        <p class="no-projects">Nie masz jeszcze żadnych projektów. <a href="/projects/new">Utwórz pierwszy projekt</a></p>
+    <% } else { %>
+        <% projects.forEach(project => { %>
+            <div class="project-card">
+                <h3><a href="/projects/<%= project.id %>"><%= project.name %></a></h3>
+                <p class="project-description"><%= project.description %></p>
+                <div class="project-meta">
+                    <span class="status status-<%= project.status.toLowerCase().replace(' ', '-') %>">
+                        <%= project.status %>
+                    </span>
+                    <span class="deadline">Termin: <%= new Date(project.deadline).toLocaleDateString('pl-PL') %></span>
+                </div>
+                <div class="project-stats">
+                    <span>👥 <%= project.participants.length %> uczestników</span>
+                    <span>📊 <%= project.progress.length %> aktualizacji</span>
+                </div>
+            </div>
+        <% }) %>
+    <% } %>
+</div>

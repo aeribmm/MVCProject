@@ -1,0 +1,81 @@
+<% layout('layout') -%>
+
+<div class="project-header">
+    <h1><%= project.name %></h1>
+    <div class="project-actions">
+        <% if (isOwner) { %>
+            <a href="/projects/<%= project.id %>/edit" class="btn btn-primary">Edytuj</a>
+            <form action="/projects/<%= project.id %>/delete" method="POST" class="inline-form" onsubmit="return confirm('Czy na pewno chcesz usunąć ten projekt?');">
+                <button type="submit" class="btn btn-danger">Usuń</button>
+            </form>
+        <% } %>
+    </div>
+</div>
+
+<div class="project-info">
+    <p class="description"><%= project.description %></p>
+    <div class="project-metadata">
+        <div class="meta-item">
+            <strong>Status:</strong> 
+            <span class="status status-<%= project.status.toLowerCase().replace(' ', '-') %>">
+                <%= project.status %>
+            </span>
+        </div>
+        <div class="meta-item">
+            <strong>Termin:</strong> <%= new Date(project.deadline).toLocaleDateString('pl-PL') %>
+        </div>
+        <div class="meta-item">
+            <strong>Utworzono:</strong> <%= new Date(project.createdAt).toLocaleDateString('pl-PL') %>
+        </div>
+    </div>
+</div>
+
+<div class="section">
+    <h2>Uczestnicy projektu</h2>
+    <div class="participants-list">
+        <% participants.forEach(participant => { %>
+            <div class="participant">
+                <span class="participant-name"><%= participant.name %></span>
+                <span class="participant-email">(<%= participant.email %>)</span>
+            </div>
+        <% }) %>
+    </div>
+    
+    <% if (isOwner) { %>
+        <form action="/projects/<%= project.id %>/invite" method="POST" class="invite-form">
+            <h3>Zaproś uczestnika</h3>
+            <div class="form-group inline">
+                <input type="email" name="email" placeholder="Email uczestnika" required class="form-control">
+                <button type="submit" class="btn btn-primary">Zaproś</button>
+            </div>
+        </form>
+    <% } %>
+</div>
+
+<div class="section">
+    <h2>Postępy w projekcie</h2>
+    <% if (project.progress.length === 0) { %>
+        <p>Brak aktualizacji postępów.</p>
+    <% } else { %>
+        <div class="progress-list">
+            <% project.progress.slice().reverse().forEach(progress => { %>
+                <div class="progress-item">
+                    <div class="progress-date">
+                        <%= new Date(progress.date).toLocaleDateString('pl-PL') %>
+                    </div>
+                    <div class="progress-description">
+                        <%= progress.description %>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    <% } %>
+    
+    <form action="/projects/<%= project.id %>/progress" method="POST" class="progress-form">
+        <h3>Dodaj postęp</h3>
+        <div class="form-group">
+            <textarea name="description" rows="3" placeholder="Opisz postępy w projekcie..." required class="form-control"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Dodaj aktualizację</button>
+    </form>
+</div>

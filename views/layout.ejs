@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Zarządzania Projektami</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <a href="/">System Projektów</a>
+            </div>
+            <div class="navbar-menu">
+                <% if (currentUser) { %>
+                    <span class="navbar-item">Witaj, <%= currentUser.name %>!</span>
+                    <a href="/projects/new" class="navbar-item btn btn-primary">Nowy projekt</a>
+                    <form action="/logout" method="POST" class="navbar-item">
+                        <button type="submit" class="btn btn-secondary">Wyloguj</button>
+                    </form>
+                <% } else { %>
+                    <a href="/login" class="navbar-item">Zaloguj</a>
+                    <a href="/register" class="navbar-item">Rejestracja</a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <%- body %>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 System Zarządzania Projektami. Wszystkie prawa zastrzeżone.</p>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
