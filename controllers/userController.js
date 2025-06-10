@@ -1,5 +1,5 @@
 // controllers/userController.js
-const { User, users } = require('../models/User');
+const User = require('../models/User');
 
 const userController = {
     // Wyświetlanie formularza logowania
@@ -11,24 +11,40 @@ const userController = {
     },
 
     // Logowanie
-    login: (req, res) => {
-        const { email, password } = req.body;
-        
-        const user = Array.from(users.values()).find(u => 
-            u.email === email && u.password === password
-        );
-        
-        if (!user) {
-            return res.render('login', { 
-                error: 'Nieprawidłowy email lub hasło' 
+    login: async (req, res) => {
+        try {
+            const { email, password } = req.body;
+
+            // Znajdowanie użytkownika
+            const user = await User.findOne({ email });
+
+            if (!user) {
+                return res.render('login', {
+                    error: 'Nieprawidłowy email lub hasło'
+                });
+            }
+
+            // Sprawdzanie hasła
+            const isValidPassword = await user.comparePassword(password);
+
+            if (!isValidPassword) {
+                return res.render('login', {
+                    error: 'Nieprawidłowy email lub hasło'
+                });
+            }
+
+            // Zapisywanie sesji
+            req.session.userId = user._id;
+            req.session.userName = user.name;
+            req.session.userEmail = user.email;
+
+            res.redirect('/');
+        } catch (error) {
+            console.error('Błąd podczas logowania:', error);
+            res.render('login', {
+                error: 'Wystąpił błąd podczas logowania. Spróbuj ponownie.'
             });
         }
-
-        req.session.userId = user.id;
-        req.session.userName = user.name;
-        req.session.userEmail = user.email;
-        
-        res.redirect('/');
     },
 
     // Wyświetlanie formularza rejestracji
@@ -40,26 +56,60 @@ const userController = {
     },
 
     // Rejestracja
-    register: (req, res) => {
-        const { name, email, password } = req.body;
-        
-        // Sprawdzanie czy email już istnieje
-        const existingUser = Array.from(users.values()).find(u => u.email === email);
-        
-        if (existingUser) {
-            return res.render('register', { 
-                error: 'Użytkownik z tym adresem email już istnieje' 
+    register: async (req, res) => {
+        try {
+            const { name, email, password } = req.body;
+
+            // Sprawdzanie czy email już istnieje
+            const existingUser = await User.findOne({ email });
+
+            if (existingUser) {
+                return res.render('register', {
+                    error: 'Użytkownik z tym adresem email już istnieje'
+                });
+            }
+
+            // Walidacja danych
+            if (!name || !email || !password) {
+                return res.render('register', {
+                    error: 'Wszystkie pola są wymagane'
+                });
+            }
+
+            if (password.length < 6) {
+                return res.render('register', {
+                    error: 'Hasło musi mieć co najmniej 6 znaków'
+                });
+            }
+
+            // Tworzenie nowego użytkownika
+            const user = new User({
+                name: name.trim(),
+                email: email.trim().toLowerCase(),
+                password
+            });
+
+            await user.save();
+
+            // Automatyczne logowanie po rejestracji
+            req.session.userId = user._id;
+            req.session.userName = user.name;
+            req.session.userEmail = user.email;
+
+            res.redirect('/');
+        } catch (error) {
+            console.error('Błąd podczas rejestracji:', error);
+
+            if (error.code === 11000) {
+                return res.render('register', {
+                    error: 'Użytkownik z tym adresem email już istnieje'
+                });
+            }
+
+            res.render('register', {
+                error: 'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.'
             });
         }
-
-        const user = new User(name, email, password);
-        users.set(user.id, user);
-        
-        req.session.userId = user.id;
-        req.session.userName = user.name;
-        req.session.userEmail = user.email;
-        
-        res.redirect('/');
     },
 
     // Wylogowanie

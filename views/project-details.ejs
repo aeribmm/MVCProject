@@ -1,10 +1,14 @@
-
 <div class="project-header">
     <h1><%= project.name %></h1>
     <div class="project-actions">
+        <% if (project.status !== 'Zakończony') { %>
+            <form action="/projects/<%= project._id %>/complete" method="POST" class="inline-form" onsubmit="return confirm('Czy na pewno chcesz oznaczyć ten projekt jako zakończony?');">
+                <button type="submit" class="btn btn-success">Oznacz jako zakończony</button>
+            </form>
+        <% } %>
         <% if (isOwner) { %>
-            <a href="/projects/<%= project.id %>/edit" class="btn btn-primary">Edytuj</a>
-            <form action="/projects/<%= project.id %>/delete" method="POST" class="inline-form" onsubmit="return confirm('Czy na pewno chcesz usunąć ten projekt?');">
+            <a href="/projects/<%= project._id %>/edit" class="btn btn-primary">Edytuj</a>
+            <form action="/projects/<%= project._id %>/delete" method="POST" class="inline-form" onsubmit="return confirm('Czy na pewno chcesz usunąć ten projekt?');">
                 <button type="submit" class="btn btn-danger">Usuń</button>
             </form>
         <% } %>
@@ -15,7 +19,7 @@
     <p class="description"><%= project.description %></p>
     <div class="project-metadata">
         <div class="meta-item">
-            <strong>Status:</strong> 
+            <strong>Status:</strong>
             <span class="status status-<%= project.status.toLowerCase().replace(' ', '-') %>">
                 <%= project.status %>
             </span>
@@ -26,6 +30,17 @@
         <div class="meta-item">
             <strong>Utworzono:</strong> <%= new Date(project.createdAt).toLocaleDateString('pl-PL') %>
         </div>
+        <div class="meta-item">
+            <strong>Utworzył:</strong> <%= project.createdBy.name %>
+        </div>
+        <% if (project.completedBy && project.completedAt) { %>
+            <div class="meta-item">
+                <strong>Zakończono przez:</strong> <%= project.completedBy.name %>
+            </div>
+            <div class="meta-item">
+                <strong>Data zakończenia:</strong> <%= new Date(project.completedAt).toLocaleDateString('pl-PL') %>
+            </div>
+        <% } %>
     </div>
 </div>
 
@@ -36,17 +51,27 @@
             <div class="participant">
                 <span class="participant-name"><%= participant.name %></span>
                 <span class="participant-email">(<%= participant.email %>)</span>
+                <% if (participant._id.toString() === project.createdBy._id.toString()) { %>
+                    <span class="owner-badge">👑 Właściciel</span>
+                <% } %>
             </div>
         <% }) %>
     </div>
-    
-    <% if (isOwner) { %>
-        <form action="/projects/<%= project.id %>/invite" method="POST" class="invite-form">
+
+    <% if (isOwner && project.status !== 'Zakończony') { %>
+        <form action="/projects/<%= project._id %>/invite" method="POST" class="invite-form">
             <h3>Zaproś uczestnika</h3>
+            <% if (locals.error) { %>
+                <div class="alert alert-error"><%= error %></div>
+            <% } %>
+            <% if (locals.success) { %>
+                <div class="alert alert-success"><%= success %></div>
+            <% } %>
             <div class="form-group inline">
                 <input type="email" name="email" placeholder="Email uczestnika" required class="form-control">
                 <button type="submit" class="btn btn-primary">Zaproś</button>
             </div>
+            <p class="invite-hint">💡 Użytkownik musi być już zarejestrowany w systemie</p>
         </form>
     <% } %>
 </div>
@@ -61,6 +86,9 @@
                 <div class="progress-item">
                     <div class="progress-date">
                         <%= new Date(progress.date).toLocaleDateString('pl-PL') %>
+                        <% if (progress.author) { %>
+                            - <%= progress.author.name %>
+                        <% } %>
                     </div>
                     <div class="progress-description">
                         <%= progress.description %>
@@ -69,12 +97,14 @@
             <% }) %>
         </div>
     <% } %>
-    
-    <form action="/projects/<%= project.id %>/progress" method="POST" class="progress-form">
-        <h3>Dodaj postęp</h3>
-        <div class="form-group">
-            <textarea name="description" rows="3" placeholder="Opisz postępy w projekcie..." required class="form-control"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Dodaj aktualizację</button>
-    </form>
+
+    <% if (project.status !== 'Zakończony') { %>
+        <form action="/projects/<%= project._id %>/progress" method="POST" class="progress-form">
+            <h3>Dodaj postęp</h3>
+            <div class="form-group">
+                <textarea name="description" rows="3" placeholder="Opisz postępy w projekcie..." required class="form-control"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Dodaj aktualizację</button>
+        </form>
+    <% } %>
 </div>

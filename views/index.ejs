@@ -1,39 +1,85 @@
-
-
-<h1>Moje Projekty</h1>
-
-<div class="filter-section">
-    <form method="GET" action="/projects" class="filter-form">
-        <label for="status">Filtruj po statusie:</label>
-        <select name="status" id="status" onchange="this.form.submit()">
-            <option value="all" <%= statusFilter === 'all' ? 'selected' : '' %>>Wszystkie</option>
-            <option value="Planowany" <%= statusFilter === 'Planowany' ? 'selected' : '' %>>Planowane</option>
-            <option value="W trakcie" <%= statusFilter === 'W trakcie' ? 'selected' : '' %>>W trakcie</option>
-            <option value="Zakończony" <%= statusFilter === 'Zakończony' ? 'selected' : '' %>>Zakończone</option>
-            <option value="Wstrzymany" <%= statusFilter === 'Wstrzymany' ? 'selected' : '' %>>Wstrzymane</option>
-        </select>
-    </form>
+<div class="page-header">
+    <h1>Moje Projekty</h1>
+    <div class="filter-section">
+        <form method="GET" action="/projects" class="filter-form">
+            <select name="status" id="status" onchange="this.form.submit()" class="modern-select">
+                <option value="all" <%= statusFilter === 'all' ? 'selected' : '' %>>Wszystkie</option>
+                <option value="Planowany" <%= statusFilter === 'Planowany' ? 'selected' : '' %>>Planowane</option>
+                <option value="Zakończony" <%= statusFilter === 'Zakończony' ? 'selected' : '' %>>Zakończone</option>
+            </select>
+        </form>
+    </div>
 </div>
 
-<div class="projects-grid">
-    <% if (projects.length === 0) { %>
-        <p class="no-projects">Nie masz jeszcze żadnych projektów. <a href="/projects/new">Utwórz pierwszy projekt</a></p>
-    <% } else { %>
-        <% projects.forEach(project => { %>
-            <div class="project-card">
-                <h3><a href="/projects/<%= project.id %>"><%= project.name %></a></h3>
-                <p class="project-description"><%= project.description %></p>
-                <div class="project-meta">
-                    <span class="status status-<%= project.status.toLowerCase().replace(' ', '-') %>">
-                        <%= project.status %>
-                    </span>
-                    <span class="deadline">Termin: <%= new Date(project.deadline).toLocaleDateString('pl-PL') %></span>
+<% if (projects.length === 0) { %>
+    <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>Brak projektów</h3>
+        <a href="/projects/new" class="btn btn-primary">Utwórz pierwszy projekt</a>
+    </div>
+<% } else if (projects.length === 1) { %>
+    <div class="projects-container">
+        <div class="projects-grid">
+            <% projects.forEach(project => { %>
+                <div class="project-card first-project">
+                    <div class="project-badge">⭐ Pierwszy projekt</div>
+                    <div class="project-header-card">
+                        <h3><a href="/projects/<%= project._id %>"><%= project.name %></a></h3>
+                        <span class="status status-<%= project.status.toLowerCase().replace(' ', '-') %>">
+                            <%= project.status %>
+                        </span>
+                    </div>
+                    <p class="project-description"><%= project.description %></p>
+                    <div class="project-footer">
+                        <div class="project-stats">
+                            <span><i class="icon">👥</i> <%= project.participants.length %></span>
+                            <span><i class="icon">📊</i> <%= project.progress.length %></span>
+                        </div>
+                        <div class="project-deadline">
+                            <%= new Date(project.deadline).toLocaleDateString('pl-PL') %>
+                        </div>
+                    </div>
                 </div>
-                <div class="project-stats">
-                    <span>👥 <%= project.participants.length %> uczestników</span>
-                    <span>📊 <%= project.progress.length %> aktualizacji</span>
+            <% }) %>
+        </div>
+
+        <div class="achievement-card">
+            <div class="achievement-content">
+                <span class="achievement-icon">🎯</span>
+                <div class="achievement-text">
+                    <h4>Świetny start!</h4>
+                    <p>Czas na kolejny projekt</p>
                 </div>
+                <a href="/projects/new" class="btn btn-achievement">Stwórz kolejny</a>
             </div>
-        <% }) %>
-    <% } %>
-</div>
+        </div>
+    </div>
+<% } else { %>
+    <div class="projects-container">
+        <div class="projects-grid">
+            <% projects.forEach(project => { %>
+                <div class="project-card">
+                    <div class="project-header-card">
+                        <h3><a href="/projects/<%= project._id %>"><%= project.name %></a></h3>
+                        <span class="status status-<%= project.status.toLowerCase().replace(' ', '-') %>">
+                            <%= project.status %>
+                        </span>
+                    </div>
+                    <p class="project-description"><%= project.description %></p>
+                    <div class="project-footer">
+                        <div class="project-stats">
+                            <span><i class="icon">👥</i> <%= project.participants.length %></span>
+                            <span><i class="icon">📊</i> <%= project.progress.length %></span>
+                            <% if (project.status === 'Zakończony') { %>
+                                <span><i class="icon">✅</i> Ukończony</span>
+                            <% } %>
+                        </div>
+                        <div class="project-deadline">
+                            <%= new Date(project.deadline).toLocaleDateString('pl-PL') %>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+<% } %>

@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
+    "init-db": "node scripts/initDb.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -17,14 +18,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^16.4.5",
+    "bcryptjs": "^2.4.3",
+    "connect-mongo": "^5.1.0",
+    "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
-    "express": "^4.19.2",
+    "express": "^4.21.2",
     "express-ejs-layouts": "^2.5.1",
-    "express-session": "^1.18.0",
+    "express-session": "^1.18.1",
+    "mongodb": "^6.17.0",
+    "mongoose": "^8.15.1",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.1.10"
   }
 }

@@ -1,25 +1,46 @@
 // models/User.js
-const { v4: uuidv4 } = require('uuid');
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
-class User {
-    constructor(name, email, password) {
-        this.id = uuidv4();
-        this.name = name;
-        this.email = email;
-        this.password = password; // W prawdziwej aplikacji hasło powinno być zahashowane
-        this.createdAt = new Date();
+const userSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true,
+        trim: true
+    },
+    password: {
+        type: String,
+        required: true,
+        minlength: 6
     }
-}
+}, {
+    timestamps: true
+});
 
-// Symulacja bazy danych
-const users = new Map();
+// Хешування пароля перед записом
+userSchema.pre('save', async function(next) {
+    if (!this.isModified('password')) return next();
 
-// Przykładowy użytkownik
-const demoUser = new User('Jan Kowalski', 'jan@example.com', 'haslo123');
-demoUser.id = 'demo-user';
-users.set(demoUser.id, demoUser);
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
 
-module.exports = {
-    User,
-    users
+// Метод для проверки пароля
+userSchema.methods.comparePassword = async function(candidatePassword) {
+    return await bcrypt.compare(candidatePassword, this.password);
 };
+
+const User = mongoose.model('User', userSchema);
+module.exports = User;
