@@ -1,4 +1,3 @@
-// models/Progress.js
 const { v4: uuidv4 } = require('uuid');
 
 class Progress {

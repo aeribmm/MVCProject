@@ -1,4 +1,3 @@
-// models/Project.js
 const mongoose = require('mongoose');
 
 const progressSchema = new mongoose.Schema({
@@ -57,18 +56,14 @@ const projectSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Индексы для оптимизации поиска
 projectSchema.index({ createdBy: 1 });
 projectSchema.index({ participants: 1 });
 projectSchema.index({ status: 1 });
 
-// Метод для добавления участника
 projectSchema.methods.addParticipant = function(userId) {
-    // Конвертируем в ObjectId если это строка
     const userObjectId = mongoose.Types.ObjectId.isValid(userId) ?
         new mongoose.Types.ObjectId(userId) : userId;
 
-    // Проверяем, есть ли уже такой участник
     const alreadyParticipant = this.participants.some(p =>
         p.toString() === userObjectId.toString()
     );
@@ -79,7 +74,6 @@ projectSchema.methods.addParticipant = function(userId) {
     return this.save();
 };
 
-// Метод для добавления прогресса
 projectSchema.methods.addProgress = function(description, authorId) {
     const authorObjectId = mongoose.Types.ObjectId.isValid(authorId) ?
         new mongoose.Types.ObjectId(authorId) : authorId;
@@ -91,7 +85,6 @@ projectSchema.methods.addProgress = function(description, authorId) {
     return this.save();
 };
 
-// Метод для отметки как завершенный
 projectSchema.methods.markAsCompleted = function(userId) {
     const userObjectId = mongoose.Types.ObjectId.isValid(userId) ?
         new mongoose.Types.ObjectId(userId) : userId;
@@ -102,11 +95,9 @@ projectSchema.methods.markAsCompleted = function(userId) {
     return this.save();
 };
 
-// ИСПРАВЛЕННЫЙ метод для проверки прав на редактирование
 projectSchema.methods.canEdit = function(userId) {
     if (!userId || !this.createdBy) return false;
 
-    // Получаем ID создателя (может быть объект или строка)
     const createdById = this.createdBy._id ? this.createdBy._id.toString() : this.createdBy.toString();
     const userIdStr = userId.toString();
 
@@ -115,14 +106,11 @@ projectSchema.methods.canEdit = function(userId) {
     return userIdStr === createdById;
 };
 
-// ИСПРАВЛЕННЫЙ метод для проверки прав на просмотр
 projectSchema.methods.canView = function(userId) {
     if (!userId) return false;
 
-    // Конвертируем userId в строку
     const userIdStr = userId.toString();
 
-    // Проверяем, является ли пользователь создателем
     if (this.createdBy) {
         const createdById = this.createdBy._id ? this.createdBy._id.toString() : this.createdBy.toString();
         if (createdById === userIdStr) {
@@ -131,16 +119,12 @@ projectSchema.methods.canView = function(userId) {
         }
     }
 
-    // Проверяем, является ли пользователь участником
-    // Учитываем, что participants может быть заполнен (populated) или нет
     const isParticipant = this.participants.some(participant => {
         let participantId;
 
-        // Если participant - это объект (после populate)
         if (participant._id) {
             participantId = participant._id.toString();
         }
-        // Если participant - это просто ObjectId
         else {
             participantId = participant.toString();
         }
@@ -157,9 +141,7 @@ projectSchema.methods.canView = function(userId) {
     return isParticipant;
 };
 
-// Middleware для автоматического добавления создателя в участники
 projectSchema.pre('save', function(next) {
-    // Если это новый проект и создатель не в списке участников
     if (this.isNew && this.createdBy) {
         const createdByStr = this.createdBy.toString();
         const alreadyParticipant = this.participants.some(p =>

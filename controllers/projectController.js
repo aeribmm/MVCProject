@@ -1,10 +1,8 @@
-// controllers/projectController.js
 const Project = require('../models/Project');
 const User = require('../models/User');
 const mongoose = require('mongoose');
 
 const projectController = {
-    // Pobieranie wszystkich projektów
     getAllProjects: async (req, res) => {
         try {
             const statusFilter = req.query.status;
@@ -12,11 +10,8 @@ const projectController = {
 
             console.log('getAllProjects - userId from session:', userId);
 
-            // Конвертируем userId в ObjectId если это строка
             const userObjectId = mongoose.Types.ObjectId.isValid(userId) ?
                 new mongoose.Types.ObjectId(userId) : userId;
-
-            // Budowanie zapytania - показываем только завершенные и запланированные
             let query = {
                 participants: userObjectId,
                 $or: [
@@ -25,17 +20,13 @@ const projectController = {
                 ]
             };
 
-            // Дополнительная фильтрация по статусу если выбран конкретный
             if (statusFilter && statusFilter !== 'all') {
-                // Убираем $or и устанавливаем конкретный статус
                 query = {
                     participants: userObjectId,
                     status: statusFilter
                 };
 
-                // Но разрешаем только завершенные и запланированные
                 if (statusFilter !== 'Zakończony' && statusFilter !== 'Planowany') {
-                    query.status = 'Planowany'; // По умолчанию показываем запланированные
                 }
             }
 
@@ -61,12 +52,10 @@ const projectController = {
         }
     },
 
-    // Wyświetlanie formularza tworzenia projektu
     showCreateForm: (req, res) => {
         res.render('create-project');
     },
 
-    // Tworzenie nowego projektu
     createProject: async (req, res) => {
         try {
             const { name, description, deadline } = req.body;
@@ -80,7 +69,6 @@ const projectController = {
                 });
             }
 
-            // Конвертируем userId в ObjectId
             const userObjectId = mongoose.Types.ObjectId.isValid(userId) ?
                 new mongoose.Types.ObjectId(userId) : userId;
 
@@ -89,7 +77,7 @@ const projectController = {
                 description: description.trim(),
                 deadline: new Date(deadline),
                 createdBy: userObjectId,
-                participants: [userObjectId] // Явно добавляем создателя
+                participants: [userObjectId]
             });
 
             const savedProject = await project.save();
@@ -106,7 +94,6 @@ const projectController = {
         }
     },
 
-    // Szczegóły projektu
     getProjectDetails: async (req, res) => {
         try {
             const projectId = req.params.id;
@@ -116,7 +103,6 @@ const projectController = {
             console.log('projectId:', projectId);
             console.log('userId from session:', userId);
 
-            // СНАЧАЛА загружаем проект БЕЗ populate для проверки прав
             const projectForAuth = await Project.findById(projectId);
 
             if (!projectForAuth) {
@@ -134,7 +120,6 @@ const projectController = {
                 userId: userId
             });
 
-            // Проверяем права доступа БЕЗ populate
             const canView = projectForAuth.canView(userId);
             console.log('Can view result:', canView);
 
@@ -149,8 +134,6 @@ const projectController = {
                     error: { status: 403 }
                 });
             }
-
-            // Теперь загружаем с populate для отображения
             const project = await Project.findById(projectId)
                 .populate('createdBy', 'name email')
                 .populate('participants', 'name email')
@@ -161,7 +144,6 @@ const projectController = {
             console.log('Can edit result:', canEdit);
             console.log('=== END DEBUG ===');
 
-            // Проверяем query параметры для сообщений
             let success = null;
             if (req.query.invited === 'success') {
                 success = 'Uczestnik został pomyślnie zaproszony do projektu!';
@@ -182,7 +164,6 @@ const projectController = {
         }
     },
 
-    // Wyświetlanie formularza edycji
     showEditForm: async (req, res) => {
         try {
             const project = await Project.findById(req.params.id);
@@ -216,7 +197,6 @@ const projectController = {
         }
     },
 
-    // Aktualizacja projektu
     updateProject: async (req, res) => {
         try {
             const project = await Project.findById(req.params.id);
@@ -244,7 +224,6 @@ const projectController = {
         }
     },
 
-    // Usuwanie projektu
     deleteProject: async (req, res) => {
         try {
             const project = await Project.findById(req.params.id);
@@ -264,8 +243,6 @@ const projectController = {
             res.status(500).json({ error: 'Błąd podczas usuwania projektu' });
         }
     },
-
-    // Zapraszanie uczestnika
     inviteParticipant: async (req, res) => {
         try {
             const projectId = req.params.id;
@@ -283,7 +260,6 @@ const projectController = {
                 });
             }
 
-            // Проверяем права на редактирование
             if (!project.canEdit(req.session.userId)) {
                 console.log('User cannot edit project for invite');
                 return res.status(403).render('error', {
@@ -292,10 +268,8 @@ const projectController = {
                 });
             }
 
-            // Валидация email
             if (!email || !email.trim()) {
                 console.log('Empty email provided');
-                // Загружаем проект с данными для отображения страницы с ошибкой
                 const projectWithData = await Project.findById(projectId)
                     .populate('createdBy', 'name email')
                     .populate('participants', 'name email')
@@ -310,12 +284,10 @@ const projectController = {
                 });
             }
 
-            // Поиск пользователя по email
             const user = await User.findOne({ email: email.toLowerCase().trim() });
 
             if (!user) {
                 console.log('User not found:', email);
-                // Загружаем проект с данными для отображения страницы с ошибкой
                 const projectWithData = await Project.findById(projectId)
                     .populate('createdBy', 'name email')
                     .populate('participants', 'name email')
@@ -330,14 +302,12 @@ const projectController = {
                 });
             }
 
-            // Проверяем, не является ли пользователь уже участником
             const isAlreadyParticipant = project.participants.some(p =>
                 p.toString() === user._id.toString()
             );
 
             if (isAlreadyParticipant) {
                 console.log('User is already a participant');
-                // Загружаем проект с данными для отображения страницы с ошибкой
                 const projectWithData = await Project.findById(projectId)
                     .populate('createdBy', 'name email')
                     .populate('participants', 'name email')
@@ -352,17 +322,14 @@ const projectController = {
                 });
             }
 
-            // Добавляем участника
             await project.addParticipant(user._id);
             console.log('Participant added successfully:', user.email);
 
-            // Успешное перенаправление
             res.redirect(`/projects/${project._id}?invited=success`);
 
         } catch (error) {
             console.error('Błąd podczas zapraszania uczestnika:', error);
 
-            // При ошибке тоже загружаем данные для отображения
             try {
                 const projectWithData = await Project.findById(req.params.id)
                     .populate('createdBy', 'name email')
@@ -382,7 +349,6 @@ const projectController = {
                 console.error('Error loading project for error display:', nestedError);
             }
 
-            // Fallback на страницу ошибки
             res.status(500).render('error', {
                 message: 'Wystąpił błąd podczas zapraszania uczestnika',
                 error: { status: 500 }
@@ -390,7 +356,6 @@ const projectController = {
         }
     },
 
-    // Dodawanie postępu
     addProgress: async (req, res) => {
         try {
             const project = await Project.findById(req.params.id);
@@ -412,7 +377,6 @@ const projectController = {
         }
     },
 
-    // Oznaczanie projektu jako zakończony
     markAsCompleted: async (req, res) => {
         try {
             const project = await Project.findById(req.params.id);

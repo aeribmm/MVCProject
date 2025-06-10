@@ -1,8 +1,7 @@
-// controllers/userController.js
+
 const User = require('../models/User');
 
 const userController = {
-    // Wyświetlanie formularza logowania
     showLoginForm: (req, res) => {
         if (req.session.userId) {
             return res.redirect('/');
@@ -10,12 +9,10 @@ const userController = {
         res.render('login', { error: null });
     },
 
-    // Logowanie
     login: async (req, res) => {
         try {
             const { email, password } = req.body;
 
-            // Znajdowanie użytkownika
             const user = await User.findOne({ email });
 
             if (!user) {
@@ -24,7 +21,6 @@ const userController = {
                 });
             }
 
-            // Sprawdzanie hasła
             const isValidPassword = await user.comparePassword(password);
 
             if (!isValidPassword) {
@@ -33,7 +29,6 @@ const userController = {
                 });
             }
 
-            // Zapisywanie sesji
             req.session.userId = user._id;
             req.session.userName = user.name;
             req.session.userEmail = user.email;
@@ -47,7 +42,6 @@ const userController = {
         }
     },
 
-    // Wyświetlanie formularza rejestracji
     showRegisterForm: (req, res) => {
         if (req.session.userId) {
             return res.redirect('/');
@@ -55,12 +49,10 @@ const userController = {
         res.render('register', { error: null });
     },
 
-    // Rejestracja
     register: async (req, res) => {
         try {
             const { name, email, password } = req.body;
 
-            // Sprawdzanie czy email już istnieje
             const existingUser = await User.findOne({ email });
 
             if (existingUser) {
@@ -69,7 +61,6 @@ const userController = {
                 });
             }
 
-            // Walidacja danych
             if (!name || !email || !password) {
                 return res.render('register', {
                     error: 'Wszystkie pola są wymagane'
@@ -82,7 +73,6 @@ const userController = {
                 });
             }
 
-            // Tworzenie nowego użytkownika
             const user = new User({
                 name: name.trim(),
                 email: email.trim().toLowerCase(),
@@ -91,7 +81,6 @@ const userController = {
 
             await user.save();
 
-            // Automatyczne logowanie po rejestracji
             req.session.userId = user._id;
             req.session.userName = user.name;
             req.session.userEmail = user.email;
@@ -112,7 +101,6 @@ const userController = {
         }
     },
 
-    // Wylogowanie
     logout: (req, res) => {
         req.session.destroy((err) => {
             if (err) {

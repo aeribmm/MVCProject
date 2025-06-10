@@ -1,6 +1,3 @@
-// public/js/main.js
-
-// Automatyczne ukrywanie alertów po 5 sekundach
 document.addEventListener('DOMContentLoaded', function() {
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
@@ -12,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Walidacja formularzy
 const forms = document.querySelectorAll('form');
 forms.forEach(form => {
     form.addEventListener('submit', function(e) {
@@ -35,7 +31,6 @@ forms.forEach(form => {
     });
 });
 
-// Potwierdzenie usunięcia
 const deleteButtons = document.querySelectorAll('.btn-danger');
 deleteButtons.forEach(button => {
     if (button.closest('form') && !button.closest('form').onsubmit) {
@@ -46,16 +41,11 @@ deleteButtons.forEach(button => {
         });
     }
 });
-
-// Aktualizacja daty w czasie rzeczywistym
 const deadlineInputs = document.querySelectorAll('input[type="date"]');
 deadlineInputs.forEach(input => {
-    // Ustaw minimalną datę na dziś
     const today = new Date().toISOString().split('T')[0];
     input.setAttribute('min', today);
 });
-
-// Dodanie klasy active do aktualnej strony w menu
 const currentPath = window.location.pathname;
 const navLinks = document.querySelectorAll('.navbar-item');
 navLinks.forEach(link => {
@@ -64,13 +54,11 @@ navLinks.forEach(link => {
     }
 });
 
-// Funkcja do formatowania dat
 function formatDate(dateString) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('pl-PL', options);
 }
 
-// Licznik znaków dla textarea
 const textareas = document.querySelectorAll('textarea');
 textareas.forEach(textarea => {
     const maxLength = 500;
