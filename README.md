@@ -67,13 +67,13 @@ MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database_name?re
 
 # Alternatywnie dla lokalnej MongoDB:
 # MONGODB_URI=mongodb://localhost:27017/project_management
-# Klucz sesji (zmień na bezpieczny w produkcji)
+# Klucz sesji
 SESSION_SECRET=your-super-secret-session-key
 
-# Port aplikacji (opcjonalnie)
+# Port aplikacji
 PORT=3000
 
-# Środowisko (development/production)
+# Środowisko
 NODE_ENV=development
 ```
 
@@ -81,7 +81,7 @@ NODE_ENV=development
 - Lokalnie: upewnij się, że serwis MongoDB jest uruchomiony
 - MongoDB Atlas: użyj connection string w MONGODB_URI
 
-5. **Zainicjalizuj bazę danych (opcjonalnie):**
+5. **Zainicjalizuj bazę danych:**
 ```bash
 npm run init-db
 ```
