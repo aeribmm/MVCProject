@@ -62,11 +62,7 @@ npm install
    Utwórz plik `.env` w głównym katalogu projektu:
 ```env
 # Konfiguracja bazy danych
-# Dla MongoDB Atlas (cloud):
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database_name?retryWrites=true&w=majority
-
-# Alternatywnie dla lokalnej MongoDB:
-# MONGODB_URI=mongodb://localhost:27017/project_management
+MONGODB_URI=mongodb+srv://test:1234@mcvproject.6v4dept.mongodb.net/?retryWrites=true&w=majority&appName=MCVProject
 # Klucz sesji
 SESSION_SECRET=your-super-secret-session-key
 
