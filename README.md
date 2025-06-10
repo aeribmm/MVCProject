@@ -62,7 +62,7 @@ npm install
    Utwórz plik `.env` w głównym katalogu projektu:
 ```env
 # Konfiguracja bazy danych
-MONGODB_URI=mongodb+srv://test:1234@mcvproject.6v4dept.mongodb.net/?retryWrites=true&w=majority&appName=MCVProject
+MONGODB_URI=mongodb+srv://test:1234@mcvproject.6v4dept.mongodb.net/test?retryWrites=true&w=majority&appName=MCVProject
 # Klucz sesji
 SESSION_SECRET=your-super-secret-session-key
 
